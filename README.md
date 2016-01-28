@@ -13,7 +13,7 @@ Run the following command in the root directory of your Node-RED install
 
 Iterate over an Array received on the input, giving the next element only after it receives a feedback.
 
-<img src="preview.png" width="200">
+<img src="preview.png" >
 
 
 ## Serial Iterator
