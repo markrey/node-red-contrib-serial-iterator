@@ -1,0 +1,109 @@
+<!--
+  Copyright 2016 mcarboni@redant.com
+
+  Licensed under the Apache License, Version 2.0 (the 'License');
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an 'AS IS' BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<script type='text/x-red' data-template-name='Serial Iterator'>
+    <div class='form-row'>
+       <label for='node-input-name'><i class='fa fa-tag'></i> Name</label>
+       <input type='text' id='node-input-name' placeholder='Name'>
+    </div>
+    <div class="form-row" style="padding-top:10px;">
+        Iterate over msg.<input type="text" id="node-input-property" style="width: 200px;"/>
+    </div>
+    <div class='form-row pg'>
+        <div>
+            <input type='radio' name="node-input-input-flow" value="input" style='display: inline-block; width: auto; vertical-align: top;'>
+            <label for='node-input-input-flow' style='width: 70%;'>Pass always the message properties from the input</label>
+        </div>
+        <div>
+            <input type='radio' name="node-input-input-flow" value="feedback" style='display: inline-block; width: auto; vertical-align: top;'>
+            <label for='node-input-input-flow' style='width: 70%;'>Pass always the message properties from the feedback</label>
+        </div>
+    </div>
+    <div class='form-row pg'>
+        <label>&nbsp;</label>
+        <input type='checkbox' id='node-config-input-save-output' style='display: inline-block; width: auto; vertical-align: top;'>
+        <label for='node-config-input-save-output' style='width: 70%;'>Output processed data</label>
+    </div>
+    <div class='form-row pg'>
+        <label>&nbsp;</label>
+        <input type='checkbox' id='node-config-input-recursive' style='display: inline-block; width: auto; vertical-align: top;'>
+        <label for='node-config-input-recursive' style='width: 70%;'>Recursive</label>
+    </div>
+</script>
+
+<script type='text/x-red' data-help-name='Serial Iterator'>
+    <p>A Serial Iterator. </p>
+    <p>This Node iterate over an Array received on the input, giving the next element only after it receives a feedback.</p>
+    <p>The upper output is where is sent each element of the Array, the lower output is where is sent the output after all elements of the Array are processed.</p>
+    <p>Every element of the Array is sent as payload.</p>
+    <p>The node have the following properties :</p>
+    <h3 id="iterate-over-msg">Iterate over msg.</h3>
+    <p>Is the property that contains the Array that you want to iterate, you can use a dot for access to deeper properties <br>
+    Example :</p>
+    <pre><code>payload.response.items
+    </code></pre>
+    <h3 id="pass-always-the-message-properties-from-the-input">Pass always the message properties from the input</h3>
+    <p>While the node is iterating over the Array he preserve the values of the properties that aren’t payload. Checking this radio you are saying to the node to use the properties received from the input.</p>
+    <p>An Example of a possible user case is : <br>
+    The input is a collection of ids of Facebook pages stored in msg.payload, and on msg.credentials are stored access_token, client_id and other properties.</p>
+    <p>Having the properties preserved, for each iteration whatever is the output message from the feedback, the credentials are always available.</p>
+    <h3 id="pass-always-the-message-properties-from-the-feedback">Pass always the message properties from the feedback</h3>
+    <p>Checking this radio you are saying to the node to use the properties received from the feedback. <br>
+    For the first iteration the properties passed as output are the input properties.</p>
+    <p>An Example of a possible user case is : <br>
+    The input is a collection of urls, and the final output needs to be how much words are in all the pages.</p>
+    <p>Having the properties from the previous iteration preserved, is possible to sum to the precedent values and have an accumulator.</p>
+    <h2 id="output-processed-data">Output processed data</h2>
+    <p>The data from each feedback is stored in an Array that is at the end passed as payload.</p>
+    <h2 id="recursive">Recursive</h2>
+    <p>If this checkbox is checked then the node will check while iterating if the input is an Array, in positive case the node will start iterating over the new input, and after finishing the new iterations then continues with the previous input.</p>
+</script>
+
+<script type='text/javascript'>
+    (function() {
+		RED.nodes.registerType('Serial Iterator',{
+			category: 'function',
+			color:'#87A980',
+			defaults: {
+                name: { value:'' },
+                property: {value:'payload', required:true},
+                inputFlow: {value:'input', required:true},
+                saveOutput: {value:false},
+                recursive: {value:false}
+			},
+			inputs: 1,
+			outputs: 2,
+			icon: 'iterator.png',
+			label: function() {
+				return this.name||('One at time');
+			},
+			labelStyle: function() {
+				return this.name?'node_label_italic':'';
+			},
+			oneditprepare: function() {
+                $('input[name="node-input-input-flow"][value="'+this.inputFlow+'"]').prop('checked',true);
+                $('#node-config-input-save-output').prop('checked',this.saveOutput);
+                $('#node-config-input-recursive').prop('checked',this.recursive);
+				$('#node-input-name').focus();
+            },
+			oneditsave: function() {
+				this.inputFlow = $('input[name="node-input-input-flow"]:checked').val();
+                this.saveOutput = $( '#node-config-input-save-output' ).prop('checked') + 0;
+                this.recursive = $( '#node-config-input-recursive' ).prop('checked') + 0;
+			}
+		});
+    })();
+</script>

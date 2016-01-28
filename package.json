@@ -1,0 +1,32 @@
+{
+  "name": "node-red-contrib-serial-iterator",
+  "version": "0.1.0",
+  "description": "Iterate over an Array received on the input, giving the next element only after it receives a feedback",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/redconnect-io/node-red-contrib-serial-iterator.git"
+  },
+  "keywords": [
+    "node-red",
+    "serial",
+    "iterator",
+    "array",
+    "async",
+    "flow",
+    "redconnect"
+  ],
+  "node-red": {
+    "nodes": {
+      "Serial-Iterator": "iterator.js"
+    }
+  },
+  "author": "Maurizio Carboni <mcarboni@redant.com>",
+  "contributors": [
+    "Maurizio Carboni <mcarboni@redant.com>"
+  ],
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/redconnect-io/node-red-contrib-serial-iterator/issues"
+  },
+  "homepage": "https://github.com/redconnect-io/node-red-contrib-serial-iterator#readme"
+}
