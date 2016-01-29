@@ -42,6 +42,11 @@
         <input type='checkbox' id='node-config-input-recursive' style='display: inline-block; width: auto; vertical-align: top;'>
         <label for='node-config-input-recursive' style='width: 70%;'>Recursive</label>
     </div>
+    <div class='form-row pg'>
+        <label>&nbsp;</label>
+        <input type='checkbox' id='node-config-input-store-id' style='display: inline-block; width: auto; vertical-align: top;'>
+        <label for='node-config-input-store-id' style='width: 70%;'>Store id in the message</label>
+    </div>
 </script>
 
 <script type='text/x-red' data-help-name='Serial Iterator'>
@@ -70,6 +75,9 @@
     <p>The data from each feedback is stored in an Array that is at the end passed as payload.</p>
     <h2 id="recursive">Recursive</h2>
     <p>If this checkbox is checked then the node will check while iterating if the input is an Array, in positive case the node will start iterating over the new input, and after finishing the new iterations then continues with the previous input.</p>
+    <h3 id="store-id-in-the-message">Store id in the message</h3>
+    <p>If this checkbox is checked then the node stores an identifier of the flow in the msg. If you have simultaneous flows flowing in this node at the same time, you need to check this property. <br>
+    In case you have only one flow at a time it’s better to not use this property because if is used your feedback needs to have the property stored in the msg.</p>
 </script>
 
 <script type='text/javascript'>
@@ -82,7 +90,8 @@
                 property: {value:'payload', required:true},
                 inputFlow: {value:'input', required:true},
                 saveOutput: {value:false},
-                recursive: {value:false}
+                recursive: {value:false},
+                storeId: {value:false}
 			},
 			inputs: 1,
 			outputs: 2,
@@ -97,12 +106,14 @@
                 $('input[name="node-input-input-flow"][value="'+this.inputFlow+'"]').prop('checked',true);
                 $('#node-config-input-save-output').prop('checked',this.saveOutput);
                 $('#node-config-input-recursive').prop('checked',this.recursive);
+                $('#node-config-input-store-id').prop('checked',this.storeId);
 				$('#node-input-name').focus();
             },
 			oneditsave: function() {
 				this.inputFlow = $('input[name="node-input-input-flow"]:checked').val();
                 this.saveOutput = $( '#node-config-input-save-output' ).prop('checked') + 0;
                 this.recursive = $( '#node-config-input-recursive' ).prop('checked') + 0;
+                this.storeId = $( '#node-config-input-store-id' ).prop('checked') + 0;
 			}
 		});
     })();

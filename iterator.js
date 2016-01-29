@@ -20,15 +20,6 @@
  module.exports = function(RED) {
     'use strict';
 
-    function InjectPayload(msg,payload) {
-        var result = {};
-        for (var i in msg) {
-            result[i] = msg[i];
-        }
-        result.payload = payload;
-        return result;
-    }
-
     function IteratorNode(n) {
 
         RED.nodes.createNode(this, n);
@@ -36,13 +27,23 @@
         this.inputFlow = n.inputFlow;
         this.saveOutput = n.saveOutput;
         this.recursive = n.recursive;
+        this.storeId = n.storeId;
 
-        var propertyParts = n.property.split("."),
+        var propertyParts = n.property.split('.'),
             node = this;
 
-        var processing = [], outputs = [], originals = [];
+        //For multiple flows at the same time
+        var flow_id = 0,
+            flow_processing = {},
+            flow_outputs = {},
+            flow_originals = {};
 
-        function sendNext(msg) {
+        //Variables internals to the node, really usefull if on this node there's only one flow at time
+        var _processing = [],
+            _outputs = [],
+             _originals = [];
+
+        function sendNext(msg,processing,outputs,originals) {
             //Check from where takes the properties
             var output = node.inputFlow === 'input'
                         ? RED.util.cloneMessage(originals[0])
@@ -74,14 +75,55 @@
             }
         }
 
-        function onInput(msg) {
+        function onInput(_msg) {
+            var msg = RED.util.cloneMessage(_msg);
             //Find the property specified in the config
             var prop = propertyParts.reduce(function (obj, i) {
-                return obj[i] || {}
+                return (typeof obj === 'object')
+                        ? obj[i]
+                        : obj;
             }, msg);
 
+            var processing,outputs,originals,actually_processing;
+
+            //In the case the id of the flow needs to be stored in the msg
+            if ( node.storeId ) {
+                var id;
+                //Set if is a feedback
+                actually_processing  = Array.isArray(msg.__serialIteratorId);
+                //If is not processing and the input isn't an array, the data is invalid
+                if (!actually_processing && !Array.isArray(prop) ) {
+                    return ;
+                }
+                //Check if is a an input
+                if (( node.recursive || !actually_processing  ) && Array.isArray(prop)) {
+                    //New id
+                    id = flow_id++;
+                    flow_processing[id] = [];
+                    flow_outputs[id]    = [];
+                    flow_originals[id]  = [];
+                    //Add the id to the msg
+                    if (!msg.__serialIteratorId) {
+                        msg.__serialIteratorId = [];
+                    }
+                    msg.__serialIteratorId.unshift(id);
+                } else {
+                    //It's a feedback
+                    id = msg.__serialIteratorId[0];
+                }
+                processing  = flow_processing[id];
+                outputs     = flow_outputs[id];
+                originals   = flow_originals[id];
+            } else {
+                //In case of only one flow at time
+                actually_processing = processing.length;
+                processing  = _processing;
+                outputs     = _outputs;
+                originals   = _originals;
+            }
+
             //If the property is an Array then iterate over it
-            if ( ( node.recursive || ! processing.length ) && Array.isArray(prop) ) {
+            if ( ( node.recursive || !actually_processing  ) && Array.isArray(prop) ) {
                 //Save the array
                 processing.unshift(prop);
                 if ( node.inputFlow === 'input') {
@@ -100,7 +142,7 @@
                 }
             }
             //Send the next one
-            sendNext(node,msg);
+            sendNext(msg,processing,outputs,originals);
         }
 
         this.on('input', onInput);

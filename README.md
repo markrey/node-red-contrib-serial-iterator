@@ -13,7 +13,7 @@ Run the following command in the root directory of your Node-RED install
 
 Iterate over an Array received on the input, giving the next element only after it receives a feedback.
 
-<img src="preview.png" width="200">
+<img src="preview.png">
 
 
 ## Serial Iterator
@@ -52,12 +52,19 @@ The input is a collection of urls, and the final output needs to be how much wor
 Having the properties from the previous iteration preserved, is possible to sum to the precedent values and have an accumulator.
 
 
-## Output processed data
+### Output processed data
 
 The data from each feedback is stored in an Array that is at the end passed as payload.
 
 
 
-## Recursive
+### Recursive
 
 If this checkbox is checked then the node will check while iterating if the input is an Array, in positive case the node will start iterating over the new input, and after finishing the new iterations then continues with the previous input.
+
+
+
+### Store id in the message
+
+If this checkbox is checked then the node stores an identifier of the flow in the msg. If you have simultaneous flows flowing in this node at the same time, you need to check this property.
+In case you have only one flow at a time it's better to not use this property because if is used your feedback needs to have the property stored in the msg.
