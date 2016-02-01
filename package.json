@@ -17,7 +17,7 @@
   ],
   "node-red": {
     "nodes": {
-      "Serial-Iterator": "iterator.js"
+      "Serial-Iterator": "91-01-sr-iterator.js"
     }
   },
   "author": "Maurizio Carboni <mcarboni@redant.com>",
